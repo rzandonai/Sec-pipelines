@@ -1,7 +1,4 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Java CI with Maven
+name: Sec pipelines for java + maven
 
 on:
   push:
@@ -20,3 +17,18 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+
+  test:
+    stage: test
+    script:
+      - mvn test
+
+  name: sast-scan
+    uses: AppThreat/sast-scan-action@1.0.2
+    with:
+      type: "java"
+  zap-baseline:
+    stage: integration
+    script:
+      - docker run -t owasp/zap2docker-stable zap-baseline.py -t http://10.0.1.22:8000/
+    allow_failure: true
