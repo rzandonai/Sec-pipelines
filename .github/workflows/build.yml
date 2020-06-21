@@ -39,5 +39,3 @@ jobs:
         env:
           VULNDB_HOME: ${{ github.workspace }}/db
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}:[]
-      - name:  zap-baseline
-          uses: owasp/zap2docker-stable
