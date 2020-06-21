@@ -23,10 +23,11 @@ jobs:
     script:
       - mvn test
 
-  name: sast-scan
+  sast:
     uses: AppThreat/sast-scan-action@1.0.2
     with:
       type: "java"
+
   zap-baseline:
     stage: integration
     script:
