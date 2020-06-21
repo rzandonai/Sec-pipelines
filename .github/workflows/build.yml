@@ -18,18 +18,26 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-  test:
-    stage: test
-    script:
-      - mvn test
-
-  sast:
-    uses: AppThreat/sast-scan-action@1.0.2
-    with:
-      type: "java"
-
-  zap-baseline:
-    stage: integration
-    script:
-      - docker run -t owasp/zap2docker-stable zap-baseline.py -t http://10.0.1.22:8000/
-    allow_failure: true
+  validation:
+    name: "Sec Scanner"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: gradle/wrapper-validation-action@v1
+      - name: Self sast-scan
+        uses: AppThreat/sast-scan-action@v1.0.0
+        with:
+          output: reports
+          type: java,bash
+      - name: Upload scan reports
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: sast-scan-reports
+          path: reports
+      - name: Self dep-scan
+        uses: AppThreat/dep-scan-action@master
+        env:
+          VULNDB_HOME: ${{ github.workspace }}/db
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}:[]
+      - name:  zap-baseline
+          uses: owasp/zap2docker-stable
